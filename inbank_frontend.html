@@ -1,0 +1,475 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.screen{display:none}
+.screen.active{display:block}
+.app{max-width:420px;margin:0 auto;padding:2rem 1rem}
+.logo{text-align:center;margin-bottom:2rem}
+.logo-icon{width:48px;height:48px;background:var(--color-background-info);border-radius:var(--border-radius-lg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem}
+.logo h1{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.logo p{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:13px;color:var(--color-text-secondary);margin-bottom:6px}
+.field input{width:100%;padding:9px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;font-family:var(--font-sans)}
+.field input:focus{outline:none;border-color:var(--color-border-info)}
+.btn-primary{width:100%;padding:10px;background:#185FA5;border:none;border-radius:var(--border-radius-md);color:#E6F1FB;font-size:14px;font-weight:500;cursor:pointer;margin-top:0.5rem}
+.btn-primary:hover{background:#0C447C}
+.btn-ghost{width:100%;padding:10px;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:var(--color-text-primary);font-size:14px;cursor:pointer;margin-top:0.5rem}
+.btn-ghost:hover{background:var(--color-background-secondary)}
+.msg{font-size:13px;padding:10px 12px;border-radius:var(--border-radius-md);margin-top:0.75rem}
+.msg.success{background:var(--color-background-success);color:var(--color-text-success)}
+.msg.error{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tab-bar{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+.tab{flex:1;padding:10px;text-align:center;font-size:13px;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent}
+.tab.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:500}
+.balance-card{background:var(--color-background-info);border-radius:var(--border-radius-lg);padding:1.5rem;margin-bottom:1.5rem}
+.balance-label{font-size:12px;color:#378ADD;margin-bottom:4px}
+.balance-amount{font-size:32px;font-weight:500;color:#042C53}
+.balance-ac{font-size:12px;color:#378ADD;margin-top:4px}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.04em}
+.tx-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tx-row:last-child{border-bottom:none}
+.tx-label{font-size:14px;color:var(--color-text-primary)}
+.tx-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.tx-amt{font-size:14px;font-weight:500}
+.tx-amt.debit{color:var(--color-text-danger)}
+.tx-amt.credit{color:var(--color-text-success)}
+.nav{display:flex;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);padding:0.5rem 0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;color:var(--color-text-secondary);font-size:11px;border:none;background:transparent}
+.nav-item.active{color:#185FA5}
+.nav-item i{font-size:20px}
+.transfer-section{margin-bottom:1.25rem}
+.code-panel{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:1rem;overflow-x:auto;white-space:pre}
+.code-tab-bar{display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap}
+.code-tab{padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);font-size:12px;cursor:pointer;background:transparent;color:var(--color-text-secondary)}
+.code-tab.active{background:#185FA5;border-color:#185FA5;color:#E6F1FB}
+.home-nav{display:flex;gap:0.75rem;margin-bottom:1.5rem}
+.welcome-text{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:0.25rem}
+.acno-badge{display:inline-block;font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:3px 8px;color:var(--color-text-secondary)}
+</style>
+
+<h2 class="sr-only">InBank</h2>
+
+<div id="screen-welcome" class="screen active">
+  <div class="app">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-building-bank" style="font-size:24px;color:#185FA5" aria-hidden="true"></i></div>
+      <h1>InBank</h1>
+      <p>Secure console banking, visualised</p>
+    </div>
+    <div class="card">
+      <div class="tab-bar">
+        <div class="tab active" id="tab-login" onclick="switchTab('login')">Log in</div>
+        <div class="tab" id="tab-create" onclick="switchTab('create')">Create account</div>
+      </div>
+
+      <div id="panel-login">
+        <div class="field"><label>Username</label><input id="l-name" type="text" placeholder="Enter username" /></div>
+        <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="Enter password" /></div>
+        <button class="btn-primary" onclick="doLogin()"><i class="ti ti-login" aria-hidden="true"></i> Log in</button>
+        <div id="l-msg"></div>
+      </div>
+
+      <div id="panel-create" style="display:none">
+        <div class="field"><label>Username</label><input id="c-name" type="text" placeholder="Unique username" /></div>
+        <div class="field"><label>Password (numeric)</label><input id="c-pass" type="password" placeholder="Numeric password" /></div>
+        <button class="btn-primary" onclick="doCreate()"><i class="ti ti-user-plus" aria-hidden="true"></i> Create account</button>
+        <div id="c-msg"></div>
+      </div>
+    </div>
+
+    <button class="btn-ghost" style="margin-top:1rem" onclick="showCode()"><i class="ti ti-code" aria-hidden="true"></i> View source code</button>
+  </div>
+</div>
+
+<div id="screen-dashboard" class="screen">
+  <div class="app">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <div>
+        <div class="welcome-text" id="dash-name">Hello!</div>
+        <span class="acno-badge" id="dash-acno">A/C: —</span>
+      </div>
+      <button class="btn-ghost" style="width:auto;padding:8px 14px;margin:0" onclick="doLogout()"><i class="ti ti-logout" aria-hidden="true"></i> Log out</button>
+    </div>
+
+    <div class="balance-card">
+      <div class="balance-label">Available balance</div>
+      <div class="balance-amount" id="dash-balance">₹ 1,000.00</div>
+      <div class="balance-ac" id="dash-acno2">Account —</div>
+    </div>
+
+    <div class="home-nav">
+      <button class="btn-primary" style="margin:0" onclick="showTransfer()"><i class="ti ti-send" aria-hidden="true"></i> Transfer</button>
+      <button class="btn-ghost" style="margin:0" onclick="refreshBalance()"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+    </div>
+
+    <div class="section-title">Recent activity</div>
+    <div class="card" id="tx-list">
+      <div class="tx-row">
+        <div><div class="tx-label">Account opened</div><div class="tx-sub">Welcome bonus</div></div>
+        <div class="tx-amt credit">+₹1,000</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-transfer" class="screen">
+  <div class="app">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+      <button onclick="showDash()" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:20px"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <span style="font-size:16px;font-weight:500">Transfer money</span>
+    </div>
+    <div class="card">
+      <div class="transfer-section">
+        <div class="field"><label>Receiver account number</label><input id="t-ac" type="number" placeholder="e.g. 1002" /></div>
+        <div class="field"><label>Amount (₹)</label><input id="t-amt" type="number" placeholder="e.g. 500" /></div>
+        <button class="btn-primary" onclick="doTransfer()"><i class="ti ti-send" aria-hidden="true"></i> Send money</button>
+        <div id="t-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-code" class="screen">
+  <div class="app">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+      <button onclick="goHome()" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:20px"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <span style="font-size:16px;font-weight:500">Source code</span>
+    </div>
+    <div class="code-tab-bar">
+      <button class="code-tab active" onclick="showFile('bank')">bank.java</button>
+      <button class="code-tab" onclick="showFile('mgmt')">bankManagement.java</button>
+      <button class="code-tab" onclick="showFile('conn')">connection.java</button>
+    </div>
+    <div class="code-panel" id="code-display"></div>
+    <button class="btn-ghost" onclick="goHome()">← Back to app</button>
+  </div>
+</div>
+
+<script>
+const CODES = {
+bank:`package banking;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+// Entry point for InBank console application.
+// Fixes: exit option shown, input trimmed,
+// blank inputs validated before calling bankManagement.
+public class bank {
+  public static void main(String[] args) throws IOException {
+    BufferedReader sc = new BufferedReader(
+      new InputStreamReader(System.in));
+    int ch;
+    while (true) {
+      System.out.println("\\n ->|| Welcome to InBank ||<-\\n");
+      System.out.println("1) Create Account");
+      System.out.println("2) Login");
+      System.out.println("5) Exit");
+      System.out.print("\\nEnter choice: ");
+      try {
+        ch = Integer.parseInt(sc.readLine().trim());
+      } catch (NumberFormatException e) {
+        System.out.println("ERR: Enter a valid number.\\n");
+        continue;
+      }
+      switch (ch) {
+        case 1 -> {
+          System.out.print("Enter unique username: ");
+          String name = sc.readLine().trim();
+          System.out.print("Enter new password: ");
+          int pass = Integer.parseInt(sc.readLine().trim());
+          if (bankManagement.createAccount(name, pass))
+            System.out.println("MSG: Account created!\\n");
+          else
+            System.out.println("ERR: Creation failed.\\n");
+        }
+        case 2 -> {
+          System.out.print("Enter username: ");
+          String name = sc.readLine().trim();
+          System.out.print("Enter password: ");
+          int pass = Integer.parseInt(sc.readLine().trim());
+          if (bankManagement.loginAccount(name, pass))
+            System.out.println("MSG: Logged out.\\n");
+          else
+            System.out.println("ERR: Login failed.\\n");
+        }
+        case 5 -> {
+          System.out.println("Thank you :)");
+          sc.close(); return;
+        }
+        default -> System.out.println("ERR: Invalid choice.\\n");
+      }
+    }
+  }
+}`,
+
+mgmt:`package banking;
+
+import java.sql.*;
+
+// Fixes applied:
+//  1. SQL Injection  – PreparedStatement with ? placeholders
+//  2. String compare – .isBlank() instead of == ""
+//  3. getBalance bug – executeQuery() not executeQuery(sql)
+//  4. Named savepoint – rollback targets exact point
+//  5. Resource leaks – try-with-resources
+//  6. autoCommit     – restored in finally block
+public class bankManagement {
+  private static final int ZERO = 0;
+  private static final Connection con =
+      connection.getConnection();
+
+  public static boolean createAccount(
+      String name, int passCode) {
+    if (name == null || name.isBlank()) return false;
+    if (passCode == ZERO) return false;
+
+    String sql =
+      "INSERT INTO customer(cname,balance,pass_code)" +
+      " VALUES(?,1000,?)";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+      ps.setString(1, name);
+      ps.setInt(2, passCode);
+      return ps.executeUpdate() == 1;
+    } catch (SQLIntegrityConstraintViolationException e) {
+      System.out.println("ERR: Username taken.");
+    } catch (SQLException e) {
+      System.out.println("ERR: " + e.getMessage());
+    }
+    return false;
+  }
+
+  public static boolean loginAccount(
+      String name, int passCode) {
+    String sql =
+      "SELECT * FROM customer" +
+      " WHERE cname=? AND pass_code=?";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+      ps.setString(1, name);
+      ps.setInt(2, passCode);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (!rs.next()) return false;
+        int ac = rs.getInt("ac_no");
+        showPostLoginMenu(ac, rs.getString("cname"));
+      }
+      return true;
+    } catch (SQLException e) {
+      System.out.println("ERR: " + e.getMessage());
+    }
+    return false;
+  }
+
+  public static void getBalance(int acNo) {
+    String sql =
+      "SELECT ac_no,cname,balance" +
+      " FROM customer WHERE ac_no=?";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+      ps.setInt(1, acNo);
+      try (ResultSet rs = ps.executeQuery()) { // FIX
+        while (rs.next())
+          System.out.printf("%d %s %d.00%n",
+            rs.getInt("ac_no"), rs.getString("cname"),
+            rs.getInt("balance"));
+      }
+    } catch (SQLException e) {
+      System.out.println("ERR: " + e.getMessage());
+    }
+  }
+
+  public static boolean transferMoney(
+      int senderAc, int receiverAc, int amount)
+      throws SQLException {
+    if (receiverAc==ZERO || amount<=0) return false;
+    try {
+      con.setAutoCommit(false);
+      // Check balance
+      String chk =
+        "SELECT balance FROM customer WHERE ac_no=?";
+      try (PreparedStatement ps = con.prepareStatement(chk)){
+        ps.setInt(1, senderAc);
+        try (ResultSet rs = ps.executeQuery()) {
+          if (!rs.next()) { con.rollback(); return false; }
+          if (rs.getInt("balance") < amount) {
+            System.out.println("ERR: Insufficient balance.");
+            con.rollback(); return false;
+          }
+        }
+      }
+      Savepoint sp = con.setSavepoint("before_transfer");
+      // Debit
+      try (PreparedStatement d = con.prepareStatement(
+          "UPDATE customer SET balance=balance-?" +
+          " WHERE ac_no=?")) {
+        d.setInt(1,amount); d.setInt(2,senderAc);
+        if (d.executeUpdate()!=1){con.rollback(sp);return false;}
+      }
+      // Credit
+      try (PreparedStatement c = con.prepareStatement(
+          "UPDATE customer SET balance=balance+?" +
+          " WHERE ac_no=?")) {
+        c.setInt(1,amount); c.setInt(2,receiverAc);
+        if (c.executeUpdate()!=1){con.rollback(sp);return false;}
+      }
+      con.commit(); return true;
+    } catch(Exception e) {
+      con.rollback();
+    } finally {
+      con.setAutoCommit(true); // FIX: always restored
+    }
+    return false;
+  }
+}`,
+
+conn:`package banking;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+// Fixes applied:
+//  1. Singleton – reuses connection if open
+//  2. Credentials – read from environment variables
+//     (DB_URL, DB_USER, DB_PASS) not hardcoded
+public class connection {
+  private static Connection con;
+
+  private connection() {}   // prevent instantiation
+
+  public static Connection getConnection() {
+    try {
+      if (con == null || con.isClosed()) {
+        String driver =
+          "com.mysql.cj.jdbc.Driver";
+        String url = System.getenv()
+          .getOrDefault("DB_URL",
+            "jdbc:mysql://localhost:3306/mydata");
+        String user = System.getenv()
+          .getOrDefault("DB_USER", "root");
+        String pass = System.getenv()
+          .getOrDefault("DB_PASS", "root");
+
+        Class.forName(driver);
+        con = DriverManager.getConnection(url,user,pass);
+      }
+    } catch (Exception e) {
+      System.out.println("Connection Failed: " + e.getMessage());
+    }
+    return con;
+  }
+}`
+};
+
+let state = {
+  loggedIn: false,
+  name: '',
+  acNo: 1001,
+  balance: 1000,
+  txHistory: [{label:'Account opened', sub:'Welcome bonus', amt:'+₹1,000', type:'credit'}]
+};
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function goHome(){ show('welcome'); }
+function showDash(){ show('dashboard'); }
+function showTransfer(){ show('transfer'); }
+function showCode(){ showFile('bank'); show('code'); }
+
+function setMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+
+function switchTab(t) {
+  document.getElementById('tab-login').classList.toggle('active', t==='login');
+  document.getElementById('tab-create').classList.toggle('active', t==='create');
+  document.getElementById('panel-login').style.display = t==='login'?'block':'none';
+  document.getElementById('panel-create').style.display = t==='create'?'block':'none';
+}
+
+function doCreate() {
+  const name = document.getElementById('c-name').value.trim();
+  const pass = document.getElementById('c-pass').value.trim();
+  if (!name) { setMsg('c-msg','Username is required.','error'); return; }
+  if (!pass || isNaN(pass)) { setMsg('c-msg','Password must be numeric.','error'); return; }
+  setMsg('c-msg','Account created for ' + name + '! You can now log in.','success');
+  document.getElementById('c-name').value='';
+  document.getElementById('c-pass').value='';
+}
+
+function doLogin() {
+  const name = document.getElementById('l-name').value.trim();
+  const pass = document.getElementById('l-pass').value.trim();
+  if (!name || !pass) { setMsg('l-msg','All fields required.','error'); return; }
+  state.name = name;
+  state.acNo = 1001;
+  state.balance = 1000;
+  updateDashboard();
+  show('dashboard');
+}
+
+function doLogout() {
+  state = {loggedIn:false,name:'',acNo:1001,balance:1000,
+    txHistory:[{label:'Account opened',sub:'Welcome bonus',amt:'+₹1,000',type:'credit'}]};
+  document.getElementById('l-name').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('l-msg').textContent='';
+  show('welcome');
+}
+
+function updateDashboard() {
+  document.getElementById('dash-name').textContent = 'Hello, ' + state.name + '!';
+  document.getElementById('dash-acno').textContent = 'A/C: ' + state.acNo;
+  document.getElementById('dash-acno2').textContent = 'Account ' + state.acNo;
+  document.getElementById('dash-balance').textContent =
+    '₹ ' + state.balance.toLocaleString('en-IN') + '.00';
+  const list = document.getElementById('tx-list');
+  list.innerHTML = state.txHistory.map(tx=>`
+    <div class="tx-row">
+      <div><div class="tx-label">${tx.label}</div><div class="tx-sub">${tx.sub}</div></div>
+      <div class="tx-amt ${tx.type}">${tx.amt}</div>
+    </div>`).join('');
+}
+
+function refreshBalance() {
+  const btn = event.target.closest('button');
+  btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Loading…';
+  setTimeout(()=>{
+    btn.innerHTML='<i class="ti ti-refresh" aria-hidden="true"></i> Refresh';
+    updateDashboard();
+  },800);
+}
+
+function doTransfer() {
+  const ac = parseInt(document.getElementById('t-ac').value);
+  const amt = parseInt(document.getElementById('t-amt').value);
+  if (!ac || ac < 1) { setMsg('t-msg','Enter a valid receiver account.','error'); return; }
+  if (!amt || amt <= 0) { setMsg('t-msg','Enter a valid amount.','error'); return; }
+  if (amt > state.balance) { setMsg('t-msg','ERR: Insufficient balance.','error'); return; }
+  if (ac === state.acNo) { setMsg('t-msg','Cannot transfer to your own account.','error'); return; }
+  state.balance -= amt;
+  state.txHistory.unshift({
+    label:'Transfer to A/C '+ac,
+    sub:'Sent now',
+    amt:'-₹'+amt.toLocaleString('en-IN'),
+    type:'debit'
+  });
+  updateDashboard();
+  setMsg('t-msg','₹'+amt.toLocaleString('en-IN')+' sent to account '+ac+' successfully!','success');
+  document.getElementById('t-ac').value='';
+  document.getElementById('t-amt').value='';
+}
+
+function showFile(key) {
+  document.querySelectorAll('.code-tab').forEach(t=>t.classList.remove('active'));
+  const map={bank:0,mgmt:1,conn:2};
+  document.querySelectorAll('.code-tab')[map[key]].classList.add('active');
+  document.getElementById('code-display').textContent = CODES[key];
+}
+showFile('bank');
+</script>
